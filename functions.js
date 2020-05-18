@@ -14,28 +14,38 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig)
 let database = firebase.database();
 
-async function setPlace(serverId, placeId){
+exports.initialSet = async function(serverId, channelName){
+    let array = [0]
+    database.ref(`${serverId}`).update({
+        places: array,
+        channel: channelName
+    });
+}
+
+exports.setPlace = async function(serverId, placeId){
+    let placeTable = getPlaces(serverId)
+    placeTable = placeTable.push(placeId)
+    database.ref(`${serverId}`).update({
+        places: placeTable
+    });
+}
+
+exports.setChannel = async function(serverId, channelId){
 
 }
 
-async function setChannel(serverId, channelId){
+exports.setPrefix = async function(serverId, prefix){
 
 }
 
-async function setPrefix(serverId, prefix){
+exports.getPlaces = function(serverId){
 
 }
 
-function getPlaces(serverId){
+exports.getChannel = function(serverId){
 
 }
 
-function getChannel(serverId){
+exports.getPrefix = function(serverId){
 
 }
-
-function getPrefix(serverId){
-
-}
-
-export { setPlace, setChannel, setPrefix, getPlaces, getChannel, getPrefix };
