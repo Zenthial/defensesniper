@@ -1,8 +1,10 @@
 // Constants
-const fetch = require("node-fetch") 
-const Discord = require("discord.js")
-const config = require("./config.json")
-const client = new Discord.Client()
+const fetch = require("node-fetch") ;
+const Discord = require("discord.js");
+const config = require("./config.json");
+const client = new Discord.Client();
+const placeTable = ["1427493600"];
+const idTable = [];
 // Import Functions
 let { initialSet, setPlace, setChannel, setPrefix, getPlaces, getChannel, getPrefix } = require("./functions.js")
 // Discord Functions
@@ -17,11 +19,6 @@ client.on("guildCreate", async guild => {
     let channelName = "sniper-notifier"
     guild.channels.create(channelName)
     initialSet(guild.id, channelName)
-})
-
-client.on("guildDelete", async guild => {
-    let channel = client.channels.cache.find(ch => ch.name === 'promotion-logs');
-    channel.delete()
 })
 
 client.on("message", async message => {
@@ -41,15 +38,24 @@ client.on("message", async message => {
     }
 })
 
-/*function checkPlace(){ 
-    fetch("https://games.roblox.com/v1/games/4932772345/servers/public") 
-        .then(async function(res){ 
-            let json = await res.json()
-            let data = json.data
-            console.log(data, data.length)
-            let firstServer = data.shift()
-        });
-    };
-setInterval(checkPlace, 10000)*/
+function checkPlace(){
+    let channel = client.channels.cache.find(ch => ch.name === config.channelName);
+    for (let placeId of placeTable){
+        fetch(`https://games.roblox.com/v1/games/${placeId}/servers/public`) 
+            .then(async function(res){ 
+                let json = await res.json()
+                let data = json.data
+                console.log(data)
+                for (let server of data){
+                    if (server.playing != undefined && server.playing >= 7){
+                        for (let serverIds of server){
+                            
+                        }
+                    }
+                }
+            });
+    }
+};
+setInterval(checkPlace, 30000)
 
 client.login(config.token)
