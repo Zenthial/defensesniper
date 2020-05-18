@@ -4,13 +4,25 @@ const Discord = require("discord.js")
 const config = require("./config.json")
 const client = new Discord.Client()
 // Import Functions
-import { setPlace, setChannel } from "./functions.js";
+let { initialSet, setPlace, setChannel, setPrefix, getPlaces, getChannel, getPrefix } = require("./functions.js")
 // Discord Functions
 client.on("ready", function(){
     console.log(`Discord logged in as ${client.user.tag}`)
     client.user.setActivity("bases playercounts", {type: "WATCHING"})
     .catch(err => console.log(err))
 });
+
+client.on("guildCreate", async guild => {
+    console.log(`Joined new guild ${guild.name}`)
+    let channelName = "sniper-notifier"
+    guild.channels.create(channelName)
+    initialSet(guild.id, channelName)
+})
+
+client.on("guildDelete", async guild => {
+    let channel = client.channels.cache.find(ch => ch.name === 'promotion-logs');
+    channel.delete()
+})
 
 client.on("message", async message => {
     if (message.author.bot) return;
@@ -29,7 +41,7 @@ client.on("message", async message => {
     }
 })
 
-function checkPlace(){ 
+/*function checkPlace(){ 
     fetch("https://games.roblox.com/v1/games/4932772345/servers/public") 
         .then(async function(res){ 
             let json = await res.json()
@@ -38,6 +50,6 @@ function checkPlace(){
             let firstServer = data.shift()
         });
     };
-setInterval(checkPlace, 10000)
+setInterval(checkPlace, 10000)*/
 
 client.login(config.token)
