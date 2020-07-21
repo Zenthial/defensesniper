@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/d2767741-2037-49e3-9070-e415ccb821e3/resourceGroups/appsvc_windows_centralus/providers/Microsoft.Web/sites/clannotifier",
+    "appService.deploySubpath": "."
+}
