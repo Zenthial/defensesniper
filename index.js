@@ -5,7 +5,7 @@ const config = require("./config.json");
 const express = require("express");
 const client = new Discord.Client();
 const firebase = require("firebase");
-require("firebase/firestore");
+const firestore = require("firebase/firestore");
 // Variables
 let app = express()
 // Import Functions
