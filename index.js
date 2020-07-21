@@ -2,9 +2,15 @@
 const fetch = require("node-fetch") ;
 const Discord = require("discord.js");
 const config = require("./config.json");
+const express = require("express");
 const client = new Discord.Client();
+const firebase = require("firebase");
+require("firebase/firestore");
+// Variables
+let app = express()
 // Import Functions
 let { initialSet, setPlace, setChannel, setPrefix, getPlaces, getChannel, getPrefix, idTable } = require("./module.js")
+
 async function checkPlaceId(id){
     fetch(`https://games.roblox.com/v1/games/${id}/servers/public`) 
         .then(async function(res){
@@ -15,14 +21,11 @@ async function checkPlaceId(id){
                 if (server.playing != undefined && server.playing >= 7){
                     if (idTable[id].toggle == false){
                         idTable[id].toggle = true
-                        let res = await fetch(`https://thumbnails.roblox.com/v1/games/icons?universeIds=${id}&size=50x50&format=Png&isCircular=false`)
-                        let imageJson = res.json()
-                        let imageData = json.data.push()
                         let embed = new Discord.MessageEmbed()
                             .setTitle("Possible Defense Detected")
                             .setURL(`https://www.roblox.com/games/${id}/`)
-                            .setThumbnail(idTable[id].thumbnail)
-                            .addField(`Possible raid detected at ${idTable[id].name}. The ping of the server is ${server.ping}`)
+                            .setImage(idTable[id].thumbnail)
+                            .setDescription(`Possible raid detected at ${idTable[id].name}. There are ${server.playing} out of ${server.maxPlayers} in the server. The ping of the server is ${server.ping}`)
                         notifierChannel.send(embed)
                     }
                 }
@@ -30,21 +33,35 @@ async function checkPlaceId(id){
         })
 }
 
-let notifierChannel;
+var firebaseConfig = {
+    apiKey: "AIzaSyCOR-lzCtdPcbycq6LSpWzyse1FARa3yBw",
+    authDomain: "defense-sniper.firebaseapp.com",
+    databaseURL: "https://defense-sniper.firebaseio.com",
+    projectId: "defense-sniper",
+    storageBucket: "defense-sniper.appspot.com",
+    messagingSenderId: "73818203182",
+    appId: "1:73818203182:web:7128dea0b8d053b187ebbf",
+    measurementId: "G-61SP914R23"
+  };
+
+firebase.initializeApp(firebaseConfig);
+
+var database = firebase.firestore();
 // Discord Functions
 client.on("ready", function(){
     console.log(`Discord logged in as ${client.user.tag}`)
-    client.channels.fetch('712034455102947339').then(chan => notifierChannel = chan)
-    checkPlaceId(2130384126)
     client.user.setActivity("bases playercounts", {type: "WATCHING"})
     .catch(err => console.log(err))
 });
 
 client.on("guildCreate", async guild => {
     console.log(`Joined new guild ${guild.name}`)
-    /*let channelName = "sniper-notifier"
-    guild.channels.create(channelName)
-    initialSet(guild.id, channelName)*/
+    guild.channels.create("raid-notifier")
+    database.collection("guilds").doc(guild.id).set({
+        prefix: "!",
+        notifierChannel: "raid-notifier",
+        placeIds: []
+    })
 })
 
 client.on("message", async message => {
@@ -68,3 +85,14 @@ with a placeid and a notified value
 */
 
 client.login(config.token)
+
+app.use(bodyparser.json())
+
+app.get("/", (req, res) => {
+    res.json("The bot is online!")
+});
+app.get("/", (req, res) => {
+    res.sendStatus(200)
+});
+
+app.listen(process.env.PORT)
